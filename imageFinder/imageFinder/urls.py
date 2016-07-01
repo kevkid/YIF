@@ -17,6 +17,6 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^web/', include('web.urls', namespace="web")),
+    url(r'^', include('web.urls', namespace="web")),#can be set to /web, lets leave it as home page
     url(r'^admin/', admin.site.urls),
 ]
