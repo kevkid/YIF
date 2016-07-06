@@ -19,4 +19,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^', include('web.urls', namespace="web")),#can be set to /web, lets leave it as home page
     url(r'^admin/', admin.site.urls),
+    url(r'^tools/', include('tools.urls', namespace="tools")),
 ]
