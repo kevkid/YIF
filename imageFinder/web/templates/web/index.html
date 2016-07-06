@@ -15,8 +15,20 @@
 </div> 
 
 <div class="searchForm">
-<form>
+<form action="{% url 'web:survey'  %}" method="post">
+{% csrf_token %}
 	<p>Can you help us to describe this image?</p>
-	<img alt="" src="{% static 'web/'%}{{randomImg.image_location}}" style="width: 250px;">
+	<div style="">
+		<img alt="" src="{% static 'web/'%}{{randomImg.image_location}}" style="width: 250px; border: 3px solid blue; display: inline-block;">
+		<ul class="noStyle">
+		{% for class in classes%}
+			<li class="autoFit">
+				<input type="radio" name="survey" id="{{class.image_class}}" value="{{class.image_class}}">
+				<label for="{{class.image_class}}">{{class.image_class_desc}}</label>
+			</li>
+		{% endfor %}
+		</ul>
+		<input type="submit"\>
+	</div>
 </form>
 </div>

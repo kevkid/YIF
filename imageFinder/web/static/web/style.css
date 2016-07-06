@@ -7,3 +7,9 @@
 	text-align: center;
 	
 }
+ul.noStyle{
+	list-style: none;
+}
+li.autoFit{
+	display:inline-block;
+}
