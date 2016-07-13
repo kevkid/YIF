@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 import random
 from datetime import date
+
 # Create your views here.
 class switch(object):
     def __init__(self, value):
@@ -82,5 +83,9 @@ def survey(request):
         
     return HttpResponseRedirect(reverse('web:index', args=()))
 
-def search(request, term):
-    return render(request, 'web/search.html')#show the search page
+def search(request):
+    import tools.retriever as retriever
+    
+    images = retriever.SearchQuery("Shigella sonnei")
+    context = {'searchImages' : images}
+    return render(request, 'web/search.html', context)#show the search page

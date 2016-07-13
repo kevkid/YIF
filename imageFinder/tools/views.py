@@ -39,4 +39,6 @@ def ScanImages(request):
         instance.save()
     return render(request, 'tools/ScanImages.html')#show the homePage
     #return HttpResponseRedirect(reverse('tools:ScanImages', args=()))
+    
+
         

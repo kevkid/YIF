@@ -1,1 +1,7 @@
+{% load staticfiles %}
 <h1>Search Page</h1>
+{% for img in searchImages %}
+
+	<img src="{% static 'web/'%}{{img}}">the image</img>
+	
+{% endfor %}
