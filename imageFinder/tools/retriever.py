@@ -30,16 +30,18 @@ def SearchQuery(queryString):
             doc = searcher.doc(hit.doc)
             #print doc.get("articlepath")
             paths.append(doc.get("articlepath"))
-        
-        files = []
-        fileRoots = []
-        #path = STATIC_ROOT + 'web/images/'
-        pth = paths[0].replace("/home/kevin/Downloads/","/home/kevin/git/YIF/imageFinder/web/static/web/")#os.path.join(tools.__path__,"static/web/images")
-        for root, directories, filenames in os.walk(pth):#probably something wrong with the location
-            for filename in filenames:
-                if (".jpg" or ".gif" or ".png") in filename:
-                    files.append(root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/","") + "/" +filename)#temp, will need to chance            
-                    fileRoots.append(root)
-                    print (root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/","") + "/" + filename)
+        if len(hits.scoreDocs) > 0:
+            files = []
+            fileRoots = []
+            #path = STATIC_ROOT + 'web/images/'
+            pth = paths[0].replace("/home/kevin/Downloads/","/home/kevin/git/YIF/imageFinder/web/static/web/")#os.path.join(tools.__path__,"static/web/images")
+            for root, directories, filenames in os.walk(pth):#probably something wrong with the location
+                for filename in filenames:
+                    if (".jpg" or ".gif" or ".png") in filename:
+                        files.append(root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/","") + "/" +filename)#temp, will need to chance            
+                        fileRoots.append(root)
+                        print (root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/","") + "/" + filename)
                     
-        return files            
+            return files
+        else:
+            return 0            

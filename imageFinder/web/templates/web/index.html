@@ -9,7 +9,7 @@
 <form action="{% url 'web:search' %}" method="post">
 {% csrf_token %}
 
-<input class="searchBar" type="text" size="50"/>
+<input class="searchBar" type="text" size="50" name="searchTerm"/>
 <input type="submit" />
 </form>
 </div> 

@@ -1,7 +1,26 @@
 {% load staticfiles %}
-<h1>Search Page</h1>
-{% for img in searchImages %}
+<link rel="stylesheet" type="text/css" href="{% static 'web/style.css' %}" />
 
-	<img src="{% static 'web/'%}{{img}}">the image</img>
-	
+<h1>Search Page</h1>
+<h3>Number of images found: <b style="color: Blue">{{imageCount}}</b></h3>
+<table>
+<tbody>
+<tr>
+
+{% for img in searchImages %}
+{% if not forloop.counter|divisibleby:5 and not forloop.first %}
+<td>
+	<img class="table" src="{% static 'web/'%}{{img}}"></img>
+</td>
+{% else %}
+</tr>
+<tr>
+<td>
+	<img class="table" src="{% static 'web/'%}{{img}}"></img>
+</td>
+{% endif %}
 {% endfor %}
+
+</tr>
+</tbody>
+</table>

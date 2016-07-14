@@ -13,3 +13,8 @@ ul.noStyle{
 li.autoFit{
 	display:inline-block;
 }
+.table{
+	width: 250px;
+	height: 250px;
+	border: 3px solid blue;
+}

@@ -86,6 +86,9 @@ def survey(request):
 def search(request):
     import tools.retriever as retriever
     
-    images = retriever.SearchQuery("Shigella sonnei")
-    context = {'searchImages' : images}
+    images = retriever.SearchQuery(request.POST['searchTerm'])#"Shigella sonnei"
+    if images != 0:
+        context = {'searchImages' : images, 'imageCount' : len(images)}
+    else:
+        context = {'imageCount' : 0}
     return render(request, 'web/search.html', context)#show the search page
