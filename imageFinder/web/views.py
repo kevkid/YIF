@@ -29,9 +29,14 @@ class switch(object):
 
 def index(request):
     #lets get a random number going
-    randNum = random.randint(0,Image.objects.count()-1)
-    rand_img =  Image.objects.all()[randNum]
+    #randNum = random.randint(0,Image.objects.count()-1)
+    #rand_img =  Image.objects.all()[randNum]
     cls = Classes.objects.all()
+    import tools.retriever as retriever
+    rand_img = retriever.getRandomDoc()
+    if rand_img == -1:
+        while rand_img != -1:
+            rand_img = retriever.getRandomDoc()
     context = {'randomImg' : rand_img, 'classes': cls}
     return render(request, 'web/index.html',context)#show the homePage
 def survey(request):
@@ -88,7 +93,7 @@ def search(request):
     
     images = retriever.SearchQuery(request.POST['searchTerm'])#"Shigella sonnei"
     if images != 0:
-        context = {'searchImages' : images, 'imageCount' : len(images)}
+        context = {'searchImages' : images, 'imageCount' : len(images), 'term' : request.POST['searchTerm']}
     else:
         context = {'imageCount' : 0}
     return render(request, 'web/search.html', context)#show the search page

@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-
+import lucene
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -122,3 +122,4 @@ USE_TZ = True
 #STATICFILES_DIRS = [os.path.join(ROOT_PATH, 'static')]
 STATIC_URL = '/static/'
 STATIC_IMAGES = '/web/static/web/images/'
+lucene.initVM()#we do this only when we start the project otherwise it will kill the server every time!
