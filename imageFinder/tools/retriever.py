@@ -52,6 +52,28 @@ def SearchQuery(queryString):
 
 def getRandomDoc():
     
+        location = web.__path__[0] + "/static/web/files/index/index.figures"
+        #lucene.initVM()
+        vm_env = lucene.getVMEnv()
+        vm_env.attachCurrentThread()
+        analyzer = StandardAnalyzer(Version.LUCENE_4_10_1)
+        reader = IndexReader.open(SimpleFSDirectory(File(location)))
+        searcher = IndexSearcher(reader)
+     
+        #query = QueryParser(Version.LUCENE_4_10_1, "keywords", analyzer).parse(queryString)#"Shigella sonnei"
+        MAX = 1000
+        docNum = randrange(0, reader.maxDoc())
+        doc = reader.document(docNum)
+        fileName = doc.get("filename")
+        filePath = doc.get("filepath")
+        result = filePath + "/" + fileName 
+        result = result.replace("/home/kevin/Downloads/","/")
+        return (result, fileName)
+        
+getRandomDoc()
+
+def getRandomDoc2():
+    
         location = web.__path__[0] + "/static/web/files/index/index.articles"
         #lucene.initVM()
         vm_env = lucene.getVMEnv()
@@ -83,4 +105,4 @@ def getRandomDoc():
             return -1
         else:
              return files[randrange(0, len(files))]
-#getRandomDoc()
+

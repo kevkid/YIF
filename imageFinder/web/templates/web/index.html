@@ -20,7 +20,7 @@
 	<p>Can you help us to describe this image?</p>
 	<div style="">
 		<img alt="" src="{% static 'web/'%}{{randomImg}}" style="width: 250px; border: 3px solid blue; display: inline-block;">
-		<input type="hidden" name="imageID" value="{{randomImg.id}}"/>
+		<input type="hidden" name="imageID" value="{{img_id}}"/>
 		<ul class="noStyle">
 		{% for class in classes%}
 			<li class="autoFit">

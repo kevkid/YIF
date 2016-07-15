@@ -33,11 +33,12 @@ def index(request):
     #rand_img =  Image.objects.all()[randNum]
     cls = Classes.objects.all()
     import tools.retriever as retriever
-    rand_img = retriever.getRandomDoc()
+    rand_img, img_id = retriever.getRandomDoc()
     if rand_img == -1:
-        while rand_img != -1:
+        while rand_img == -1:
             rand_img = retriever.getRandomDoc()
-    context = {'randomImg' : rand_img, 'classes': cls}
+    
+    context = {'randomImg' : rand_img, 'classes': cls, 'img_id': img_id}
     return render(request, 'web/index.html',context)#show the homePage
 def survey(request):
     #lets get out choice
