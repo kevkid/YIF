@@ -64,13 +64,15 @@ def getRandomDoc():
         MAX = 1000
         docNum = randrange(0, reader.maxDoc())
         doc = reader.document(docNum)
+        
         fileName = doc.get("filename")
         filePath = doc.get("filepath")
+            
         result = filePath + "/" + fileName 
         result = result.replace("/home/kevin/Downloads/","/")
-        return (result, fileName)
+        return (result, docNum)
         
-getRandomDoc()
+#getRandomDoc()
 
 def getRandomDoc2():
     
