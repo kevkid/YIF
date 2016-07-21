@@ -111,7 +111,7 @@ def survey(request):
         fileClassField = doc.get("Classification")
         fileClassField = str(fileClassField) + ", " + image_class
         doc.removeField("Classification")
-        
+        #
         doc.add(StringField("Classification", fileClassField, Field.Store.YES))
         t = doc.get("Classification")
         indexDir = SimpleFSDirectory(File(location))
