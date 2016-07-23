@@ -16,6 +16,7 @@ from org.apache.lucene.index import IndexReader, IndexWriter, IndexWriterConfig,
 from org.apache.lucene.queryparser.classic import QueryParser
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
+from pandas.tslib import fields
 
 # Create your views here.
 class switch(object):
@@ -109,15 +110,47 @@ def survey(request):
         print(fname)
         #SimpleFSDirectory(File(location)).clearLock(IndexWriter.WRITE_LOCK_NAME);
         fileClassField = doc.get("Classification")
-        fileClassField = str(fileClassField) + ", " + image_class
-        doc.removeField("Classification")
-        #
-        doc.add(StringField("Classification", fileClassField, Field.Store.YES))
-        t = doc.get("Classification")
+        if fileClassField == "None":#check if the field exists####NEED TO CHECK THIS
+            fileClassField = image_class
+        else:
+            fileClassField = str(fileClassField) + ", " + image_class
+            
+        #doc.removeField("Classification")
+        
+        #doc.add(StringField("Classification", fileClassField, Field.Store.YES))
+        #t = doc.get("Classification")
+        #reader.close()
         indexDir = SimpleFSDirectory(File(location))
         writerConfig = IndexWriterConfig(Version.LUCENE_4_10_1, StandardAnalyzer())
         writer = IndexWriter(indexDir, writerConfig)
-        writer.updateDocument(Term("filename", fname), doc)#If field exists update
+        fields = doc.getFields()#get all fields
+        doc2 = Document()
+        classificationFieldFlag = False
+        for f in fields:
+            field = Field.cast_(f)
+            (k, v) = field.name(), field.stringValue()
+            if k == "Classification":
+                classificationFieldFlag = True
+                field = StringField("Classification", fileClassField, Field.Store.YES)
+                doc2.add(field)
+            else:
+                doc2.add(field)
+
+        if classificationFieldFlag == False:#this does not exist in the document must add
+            doc2.add(StringField("Classification", fileClassField, Field.Store.YES))
+#         doc2.add(StringField("Classification", fileClassField, Field.Store.YES))
+#         doc2.add(StringField("fid", doc.get("fid"), Field.Store.YES))
+#         doc2.add(StringField("articleid", doc.get("articleid"), Field.Store.YES))
+#         doc2.add(StringField("caption", doc.get("caption"), Field.Store.YES))
+#         doc2.add(StringField("figureid", doc.get("figureid"), Field.Store.YES))
+#         doc2.add(StringField("filename", doc.get("filename"), Field.Store.YES))
+#         doc2.add(StringField("filepath", doc.get("filepath"), Field.Store.YES))
+#         doc2.add(StringField("label", doc.get("label"), Field.Store.YES))
+        
+        #writer.updateDocument(Term("fid","f000000000023"), doc2)#If field exists update
+        writer.updateDocument(Term("fid", doc.get("fid")), doc2)#If field exists update
+        writer.commit();
+        writer.optimize()
         writer.close()
         #writer.unlock(SimpleFSDirectory(File(location)))
         
