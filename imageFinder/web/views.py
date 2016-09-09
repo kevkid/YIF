@@ -54,6 +54,9 @@ def index(request):
     context = {'randomImg' : rand_img, 'classes': cls, 'img_id': img_id}
     return render(request, 'web/index.html',context)#show the homePage
 def survey(request):
+    instances = (Classes.objects.values_list('image_class_desc'))
+    instances = [i[0] for i in instances]
+    #cnt = len(instances)
     #lets get out choice
     location = web.__path__[0] + "/static/web/files/index/index.figures"
     #lucene.initVM()
@@ -74,43 +77,14 @@ def survey(request):
             'error_message': "You didn't select a choice.",
         })
     else:
-        #switch statement
-        image_class = ""
-        for case in switch(s):
-            if case('0'):
-                image_class += "0"
-                break
-            if case('1'):
-                image_class += "1"
-                break
-            if case('2'):
-                image_class += "2"
-                break
-            if case('3'):
-                image_class += "3"
-                break
-            if case('4'):
-                image_class += "4"
-                break
-            if case('5'):
-                image_class += "5"
-                break
-            if case('6'):
-                image_class += "6"
-                break
-            if case('7'):
-                image_class += "7"
-                break
-            if case(): # default, could also just omit condition or 'if True'
-                print ("No such choice")
-                # No need to break here, it'll stop anyway
+        image_class = instances[int(s)]
         docNum = request.POST['imageID']#get document id
         doc = reader.document(int(docNum))
         fname = doc.get("filename")
         print(fname)
         #SimpleFSDirectory(File(location)).clearLock(IndexWriter.WRITE_LOCK_NAME);
         fileClassField = doc.get("Classification")
-        if fileClassField == "None":#check if the field exists####NEED TO CHECK THIS
+        if str(fileClassField) == "None":#check if the field exists####NEED TO CHECK THIS
             fileClassField = image_class
         else:
             fileClassField = str(fileClassField) + ", " + image_class
@@ -150,7 +124,7 @@ def survey(request):
         #writer.updateDocument(Term("fid","f000000000023"), doc2)#If field exists update
         writer.updateDocument(Term("fid", doc.get("fid")), doc2)#If field exists update
         writer.commit();
-        writer.optimize()
+        #writer.optimize()
         writer.close()
         #writer.unlock(SimpleFSDirectory(File(location)))
         

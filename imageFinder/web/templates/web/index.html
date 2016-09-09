@@ -1,17 +1,40 @@
 {% load staticfiles %}
-
+<head>
 <link rel="stylesheet" type="text/css" href="{% static 'web/style.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'web/bootstrap/css/bootstrap.css' %}"></script>
+
+</head>
+
+
 
 <div class="banner">
 	<h2>Yale Image Finder</h2>
 </div>
 <div class="searchForm">
+<div>
 <form action="{% url 'web:search' %}" method="post">
 {% csrf_token %}
-
-<input class="searchBar" type="text" size="50" name="searchTerm"/>
-<input type="submit" />
+<div style="padding-bottom:10px;">
+<input class="searchBar" type="text" size="50" name="searchTerm" style="height:30px; margin-bottom:0px;"/>
+		<button class="btn btn-primary" type="submit" >Search</button>
+		<select class="classddl">
+		{% for class in classes%}
+		<option type="radio" name="survey" id="{{class.image_class}}" value="{{class.image_class}}">{{class.image_class_desc}}</option>
+		{% endfor %}
+		</select>
+</div>
+		
+		<div class="advancedSearch">
+		<input type="checkbox" name="image_text_high_recall"/><label>Image Text (High Recall)</label>
+		<input type="checkbox" name="image_text_high_precision"/><label>Image Text (High Precision)</label>
+		<input type="checkbox" name="caption"/><label>Caption</label>
+		<input type="checkbox" name="abstract"/><label>Abstract</label>
+		<input type="checkbox" name="title"/><label>Title</label>
+		<input type="checkbox" name="full_text"/><label>Full Text</label>
+		</div>
+		
 </form>
+</div>
 </div> 
 
 <div class="searchForm">
@@ -29,7 +52,20 @@
 			</li>
 		{% endfor %}
 		</ul>
-		<input type="submit"\>
+		<button class="btn btn-primary" type="submit" >Submit</button>
 	</div>
 </form>
 </div>
+
+<style>
+
+.advancedSearch label{
+	display:inline;
+}
+.classddl{
+	margin-left:1em;
+	margin-bottom:0px;
+	width:8em;
+}
+
+</style>

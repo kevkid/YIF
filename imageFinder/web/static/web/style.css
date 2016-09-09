@@ -12,6 +12,7 @@ ul.noStyle{
 }
 li.autoFit{
 	display:inline-block;
+	padding:5px;
 }
 .table{
 	width: 250px;
