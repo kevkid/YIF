@@ -1,0 +1,46 @@
+{% load staticfiles %}
+<head>
+<link rel="stylesheet" type="text/css" href="{% static 'web/style.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'web/bootstrap/css/bootstrap.css' %}"></script>
+
+</head>
+{% include "web/searchbar.html" %}
+<table>
+  <tbody>
+    <tr>
+	    <td style="text-align:center;">
+	      <img src="{% static 'web/'%}{{img_loc}}"></img
+	    </td>
+    </tr>
+    
+    <tr>
+      <td style="text-align:center; font-weight:bold">
+        <h1>{{title}}</h1>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>{{abstract}}</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>DOI: {{doi}}</p>
+        <p>Volume: {{volume}}</p>
+        <p>year: {{year}}</p>
+        <p>publisher: {{publisher}}</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a target="_blank" href="{{fullText}}">Full Text</a> | <a target="_blank" href="{{pdf}}">PDF</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<style>
+img{
+height:15em;
+}
+</style>

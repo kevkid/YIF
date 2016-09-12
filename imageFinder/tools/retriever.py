@@ -11,6 +11,7 @@ from org.apache.lucene.util import Version
 from string import replace
 from _random import Random
 from random import randrange
+from pylint.pyreverse.utils import ABSTRACT
 
 def SearchQuery(queryString): 
     #if __name__ == "__main__":
@@ -22,18 +23,20 @@ def SearchQuery(queryString):
         analyzer = StandardAnalyzer(Version.LUCENE_4_10_1)
         reader = IndexReader.open(SimpleFSDirectory(File(location)))
         searcher = IndexSearcher(reader)
-     
+        #multi field query: http://stackoverflow.com/questions/2005084/how-to-specify-two-fields-in-lucene-queryparser
         query = QueryParser(Version.LUCENE_4_10_1, "keywords", analyzer).parse(queryString)#"Shigella sonnei"
         MAX = 1000
         hits = searcher.search(query, MAX)
      
         print "Found %d document(s) that matched query '%s':" % (hits.totalHits, query)
         paths = []
+        pmcids = []
         for hit in hits.scoreDocs:
             #print hit.score, hit.doc, hit.toString()
             doc = searcher.doc(hit.doc)
             #print doc.get("articlepath")
-            paths.append(doc.get("articlepath"))
+            paths.append(doc.get("articlepath"))#get both the article path and the pmcid
+            pmcids.append( doc.get("pmcid"))
         if len(hits.scoreDocs) > 0:
             files = []
             fileRoots = []
@@ -46,7 +49,7 @@ def SearchQuery(queryString):
                         fileRoots.append(root)
                         print (root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/","") + "/" + filename)
                     
-            return files
+            return files, pmcids
         else:
             return 0
 
@@ -108,3 +111,37 @@ def getRandomDoc2():
         else:
              return files[randrange(0, len(files))]
 
+def getDocumentPMC_ID(pmcid):
+    location = web.__path__[0] + "/static/web/files/index/index.articles"
+    #lucene.initVM()
+    vm_env = lucene.getVMEnv()
+    vm_env.attachCurrentThread()
+    analyzer = StandardAnalyzer(Version.LUCENE_4_10_1)
+    reader = IndexReader.open(SimpleFSDirectory(File(location)))
+    searcher = IndexSearcher(reader)
+    #multi field query: http://stackoverflow.com/questions/2005084/how-to-specify-two-fields-in-lucene-queryparser
+    query = QueryParser(Version.LUCENE_4_10_1, "pmcid", analyzer).parse(pmcid)#"Shigella sonnei"
+    MAX = 1000
+    hits = searcher.search(query, MAX)
+    title = ""
+    abstract = ""
+    fullText = "http://www.ncbi.nlm.nih.gov/pmc/articles/" + pmcid + "/"
+    doi = ""#need to split
+    
+    volume = ""
+    year = ""
+    publisher = ""
+    for hit in hits.scoreDocs:#should only be one
+        #print hit.score, hit.doc, hit.toString()
+        doc = searcher.doc(hit.doc)
+        abstract = doc.get("abstract")
+        doi = doc.get("doi")
+        title = doc.get("title")
+        volume = doc.get("volume")
+        year = doc.get("year")
+        publisher = doc.get("publisher")
+    doiSecond = doi.split('/')
+    doiSecond = doiSecond[1]#second part
+    #http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3363814/pdf/cc11003.pdf
+    pdf = "http://www.ncbi.nlm.nih.gov/pmc/articles/" + pmcid + "/pdf/" + doiSecond + ".pdf" 
+    return abstract, doi, title, volume, year, publisher, fullText, pdf
