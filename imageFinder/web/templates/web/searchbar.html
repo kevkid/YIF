@@ -17,12 +17,18 @@
 </div>
 		
 		<div class="advancedSearch">
-		<input type="checkbox" name="image_text_high_recall"/><label>Image Text (High Recall)</label>
-		<input type="checkbox" name="image_text_high_precision"/><label>Image Text (High Precision)</label>
-		<input type="checkbox" name="caption"/><label>Caption</label>
-		<input type="checkbox" name="abstract"/><label>Abstract</label>
-		<input type="checkbox" name="title"/><label>Title</label>
-		<input type="checkbox" name="full_text"/><label>Full Text</label>
+		<input type="checkbox" name="advSearch" value="image_text_high_recall" id="image_text_high_recall"/>
+			<label for="image_text_high_recall">Image Text (High Recall)</label>
+		<input type="checkbox" name="advSearch" value="image_text_high_precision" id="image_text_high_precision"/>
+			<label for="image_text_high_precision">Image Text (High Precision)</label>
+		<input type="checkbox" name="advSearch" value="caption" id="caption"/>
+			<label for="caption">Caption</label>
+		<input checked="checked" type="checkbox" name="advSearch" value="abstract" id="abstract"/>
+			<label for="abstract">Abstract</label>
+		<input checked="checked" type="checkbox" name="advSearch" value="title" id="title"/>
+			<label for="title">Title</label>
+		<input type="checkbox" name="advSearch" value="full_text" id="full_text"/>
+			<label for="full_text">Full Text</label>
 		</div>
 		
 </form>

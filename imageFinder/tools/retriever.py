@@ -13,7 +13,7 @@ from _random import Random
 from random import randrange
 from pylint.pyreverse.utils import ABSTRACT
 
-def SearchQuery(queryString): 
+def SearchQuery(queryString, fields, classification): 
     #if __name__ == "__main__":
     #if __name__ == "retriever":
         location = web.__path__[0] + "/static/web/files/index/index.articles"
@@ -25,11 +25,11 @@ def SearchQuery(queryString):
         searcher = IndexSearcher(reader)
         #multi field query: http://stackoverflow.com/questions/2005084/how-to-specify-two-fields-in-lucene-queryparser
         
-        #query = MultiFieldQueryParser(Version.LUCENE_4_10_1, ["year"], analyzer)
+        query = MultiFieldQueryParser(Version.LUCENE_4_10_1, fields, analyzer)
         #query.setDefaultOperator(QueryParserBase.AND_OPERATOR)
-        #query = MultiFieldQueryParser.parse(query, queryString)
+        query = MultiFieldQueryParser.parse(query, queryString)
         #query.parse(queryString)#"Shigella sonnei"
-        query = QueryParser(Version.LUCENE_4_10_1, "abstract", analyzer).parse(queryString)#"Shigella sonnei"
+        #query = QueryParser(Version.LUCENE_4_10_1, "abstract", analyzer).parse(queryString)#"Shigella sonnei"
 
         MAX = 10000
         hits = searcher.search(query, MAX)

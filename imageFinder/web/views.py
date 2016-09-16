@@ -54,6 +54,7 @@ def index(request):
     context = {'randomImg' : rand_img, 'classes': cls, 'img_id': img_id}
     return render(request, 'web/index.html',context)#show the homePage
 def survey(request):
+    ipAddr = get_client_ip(request)
     instances = (Classes.objects.values_list('image_class_desc'))
     instances = [i[0] for i in instances]
     #cnt = len(instances)
@@ -85,9 +86,9 @@ def survey(request):
         #SimpleFSDirectory(File(location)).clearLock(IndexWriter.WRITE_LOCK_NAME);
         fileClassField = doc.get("Classification")
         if str(fileClassField) == "None":#check if the field exists####NEED TO CHECK THIS
-            fileClassField = image_class
+            fileClassField = str(ipAddr + ":" + image_class)#I think we must add an ip address to this
         else:
-            fileClassField = str(fileClassField) + ", " + image_class
+            fileClassField = str(ipAddr + ":" + fileClassField) + ", " + image_class
             
         #doc.removeField("Classification")
         
@@ -133,14 +134,17 @@ def survey(request):
 def search(request):
     import tools.retriever as retriever
     cls = Classes.objects.all()
+    advSearch = request.POST.getlist('advSearch')
     try:
-        (images, pmcids,titles) = retriever.SearchQuery(request.POST['searchTerm'])#"Shigella sonnei"
+        
+        (images, pmcids,titles) = retriever.SearchQuery(request.POST['searchTerm'], advSearch, "all")#"Shigella sonnei"
     except:
         #something went wrong with getting the images, set to 0 and give 0 results
         images = 0
     
     if images != 0:
-        context = {'searchImages' : zip(images,pmcids,titles), 'imageCount' : len(images), 'term' : request.POST['searchTerm'], 'classes': cls}
+        context = {'searchImages' : zip(images,pmcids,titles), 'imageCount' : len(images),
+                    'term' : request.POST['searchTerm'], 'classes': cls, 'advSearch' : ', '.join(advSearch)}
     else:
         context = {'imageCount' : 0, 'classes': cls}
     return render(request, 'web/search.html', context)#show the search page
@@ -154,4 +158,12 @@ def OpenDocument(request):
                'year':year, 'publisher':publisher, 'fullText':fullText, 'pdf':pdf, 'title':title,
                'img_loc' : request.GET['img_loc'], 'classes': cls}#we should be getting the article id and then searching for the image via this
     return render(request, 'web/opendocument.html', context)#show the search page
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
     
