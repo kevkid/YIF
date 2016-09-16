@@ -1,3 +1,6 @@
+{% load staticfiles %}
+<script type="text/javascript" src="{% static 'web/jquery-3.1.0.min.js' %}"></script>
+
 <div class="banner">
 	<a class="title" href="{% url 'web:index' %}"><h2>Yale Image Finder</h2></a>
 </div>
@@ -14,6 +17,7 @@
 		<option name="classes" id="{{class.image_class}}" value="{{class.image_class}}">{{class.image_class_desc}}</option>
 		{% endfor %}
 		</select>
+		<a id="advancedOptions"><label>Advanced options</label></a>
 </div>
 		
 		<div class="advancedSearch">
@@ -36,7 +40,9 @@
 </div> 
 
 <style>
-
+.advancedSearch{
+	display:none;
+}
 .advancedSearch label{
 	display:inline;
 }
@@ -55,3 +61,10 @@ a.title:hover{
 	color:white;
 }
 </style>
+
+<script>
+	$('#advancedOptions').click(function(){
+		$('.advancedSearch').toggle();
+		
+	});
+</script>
