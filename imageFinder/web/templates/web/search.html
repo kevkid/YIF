@@ -5,19 +5,20 @@
 
 </head>
 {% include "web/searchbar.html" %}
-<h1>Search Page</h1>
+<h1>Search Results</h1>
 <h3>The search term was: <b style="color: Blue">{{term}}</b></h3>
-<h3>Number of images found: <b style="color: Blue">{{imageCount}}</b></h3>
+<h3>Number of documents with images found: <b style="color: Blue">{{imageCount}}</b></h3>
 <table>
 <tbody>
-<tr>
+<tr >
 
 {% for img in searchImages %}
-{% if not forloop.counter|divisibleby:5 and not forloop.first %}
+{% if not forloop.counter|divisibleby:6 and not forloop.first %}
 <td>
 
 	<a href="{% url 'web:OpenDocument' %}?pmcid={{img.1}}&&img_loc={{img.0}}"><!-- This is not how we should handle images -->
-		<img class="table" src="{% static 'web/'%}{{img.0}}"></img>
+		<label>{{img.2}}</label>
+		<img class="" src="{% static 'web/'%}{{img.0}}"></img>
 	</a>
 	
 </td>
@@ -25,8 +26,10 @@
 </tr>
 <tr>
 <td>
+
 	<a href="{% url 'web:OpenDocument' %}?pmcid={{img.1}}&&img_loc={{img.0}}">
-		<img class="table" src="{% static 'web/'%}{{img.0}}"></img>
+	<label>{{img.2}}</label>
+		<img class="" src="{% static 'web/'%}{{img.0}}"></img>
 	</a>
 </td>
 {% endif %}
@@ -41,4 +44,15 @@
     width: 250px;
     height: 250px;
     border: 3px solid blue;
+    }
+td{
+	width:18%;
+	border-bottom:solid blue;
+	vertical-align:top;
+	padding:5px;
+}
+tr{
+	width:100%
+}
+
 </style>

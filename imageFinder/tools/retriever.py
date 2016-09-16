@@ -5,7 +5,7 @@ from org.apache.lucene.analysis.standard import StandardAnalyzer
 from org.apache.lucene.document import Document, Field
 from org.apache.lucene.search import IndexSearcher
 from org.apache.lucene.index import IndexReader
-from org.apache.lucene.queryparser.classic import QueryParser
+from org.apache.lucene.queryparser.classic import QueryParser, MultiFieldQueryParser, QueryParserBase
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
 from string import replace
@@ -24,34 +24,44 @@ def SearchQuery(queryString):
         reader = IndexReader.open(SimpleFSDirectory(File(location)))
         searcher = IndexSearcher(reader)
         #multi field query: http://stackoverflow.com/questions/2005084/how-to-specify-two-fields-in-lucene-queryparser
-        query = QueryParser(Version.LUCENE_4_10_1, "keywords", analyzer).parse(queryString)#"Shigella sonnei"
-        MAX = 1000
+        
+        #query = MultiFieldQueryParser(Version.LUCENE_4_10_1, ["year"], analyzer)
+        #query.setDefaultOperator(QueryParserBase.AND_OPERATOR)
+        #query = MultiFieldQueryParser.parse(query, queryString)
+        #query.parse(queryString)#"Shigella sonnei"
+        query = QueryParser(Version.LUCENE_4_10_1, "abstract", analyzer).parse(queryString)#"Shigella sonnei"
+
+        MAX = 10000
         hits = searcher.search(query, MAX)
      
         print "Found %d document(s) that matched query '%s':" % (hits.totalHits, query)
         paths = []
         pmcids = []
+        titles = []
         for hit in hits.scoreDocs:
             #print hit.score, hit.doc, hit.toString()
             doc = searcher.doc(hit.doc)
             #print doc.get("articlepath")
             paths.append(doc.get("articlepath"))#get both the article path and the pmcid
             pmcids.append( doc.get("pmcid"))
-        if len(hits.scoreDocs) > 0:
-            files = []
+            titles.append( doc.get("title"))
+        #if len(hits.scoreDocs) > 0:
+        files = []
+        for pth in paths:
+            
             fileRoots = []
             #path = STATIC_ROOT + 'web/images/'
-            pth = paths[0].replace("/home/kevin/Downloads/","/home/kevin/git/YIF/imageFinder/web/static/web/")#os.path.join(tools.__path__,"static/web/images")
+            pth = pth.replace("/home/kevin/Downloads/","/home/kevin/git/YIF/imageFinder/web/static/web/")#os.path.join(tools.__path__,"static/web/images")
             for root, directories, filenames in os.walk(pth):#probably something wrong with the location
                 for filename in filenames:
                     if (".jpg" or ".gif" or ".png") in filename:
                         files.append(root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/","") + "/" +filename)#temp, will need to chance            
                         fileRoots.append(root)
                         print (root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/","") + "/" + filename)
+                        break#exit from loop
                     
-            return files, pmcids
-        else:
-            return 0
+        return files, pmcids, titles
+        
 
 def getRandomDoc():
     
@@ -140,8 +150,11 @@ def getDocumentPMC_ID(pmcid):
         volume = doc.get("volume")
         year = doc.get("year")
         publisher = doc.get("publisher")
-    doiSecond = doi.split('/')
-    doiSecond = doiSecond[1]#second part
+    if doi is not None:
+        doiSecond = doi.split('/')
+        doiSecond = doiSecond[1]#second part
+    else:
+        doiSecond = ""
     #http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3363814/pdf/cc11003.pdf
     pdf = "http://www.ncbi.nlm.nih.gov/pmc/articles/" + pmcid + "/pdf/" + doiSecond + ".pdf" 
     return abstract, doi, title, volume, year, publisher, fullText, pdf

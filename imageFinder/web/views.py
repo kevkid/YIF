@@ -132,19 +132,26 @@ def survey(request):
 
 def search(request):
     import tools.retriever as retriever
-    (images, pmcids) = retriever.SearchQuery(request.POST['searchTerm'])#"Shigella sonnei"
+    cls = Classes.objects.all()
+    try:
+        (images, pmcids,titles) = retriever.SearchQuery(request.POST['searchTerm'])#"Shigella sonnei"
+    except:
+        #something went wrong with getting the images, set to 0 and give 0 results
+        images = 0
+    
     if images != 0:
-        context = {'searchImages' : zip(images,pmcids), 'imageCount' : len(images), 'term' : request.POST['searchTerm']}
+        context = {'searchImages' : zip(images,pmcids,titles), 'imageCount' : len(images), 'term' : request.POST['searchTerm'], 'classes': cls}
     else:
-        context = {'imageCount' : 0}
+        context = {'imageCount' : 0, 'classes': cls}
     return render(request, 'web/search.html', context)#show the search page
 
 def OpenDocument(request):
     import tools.retriever as retriever
-    
+    cls = Classes.objects.all()
+
     (abstract, doi, title, volume, year, publisher, fullText, pdf) = retriever.getDocumentPMC_ID(request.GET['pmcid'])
     context = {'abstract':abstract, 'doi':doi, 'volume':volume, 
                'year':year, 'publisher':publisher, 'fullText':fullText, 'pdf':pdf, 'title':title,
-               'img_loc' : request.GET['img_loc']}#we should be getting the article id and then searching for the image via this
+               'img_loc' : request.GET['img_loc'], 'classes': cls}#we should be getting the article id and then searching for the image via this
     return render(request, 'web/opendocument.html', context)#show the search page
     
