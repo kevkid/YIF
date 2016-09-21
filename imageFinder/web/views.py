@@ -151,12 +151,14 @@ def search(request):
 
 def OpenDocument(request):
     import tools.retriever as retriever
+    import tools.related_images as related_images
     cls = Classes.objects.all()
 
-    (abstract, doi, title, volume, year, publisher, fullText, pdf) = retriever.getDocumentPMC_ID(request.GET['pmcid'])
+    (abstract, doi, title, volume, year, publisher, fullText, pdf,pmcid) = retriever.getDocumentPMC_ID(request.GET['pmcid'],0)
+    relatedDocs = related_images.getRelatedArticles(pmcid)
     context = {'abstract':abstract, 'doi':doi, 'volume':volume, 
                'year':year, 'publisher':publisher, 'fullText':fullText, 'pdf':pdf, 'title':title,
-               'img_loc' : request.GET['img_loc'], 'classes': cls}#we should be getting the article id and then searching for the image via this
+               'img_loc' : request.GET['img_loc'], 'classes': cls, 'relatedDocs':relatedDocs}#we should be getting the article id and then searching for the image via this
     return render(request, 'web/opendocument.html', context)#show the search page
 
 def get_client_ip(request):

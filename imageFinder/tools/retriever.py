@@ -46,19 +46,8 @@ def SearchQuery(queryString, fields, classification):
             pmcids.append( doc.get("pmcid"))
             titles.append( doc.get("title"))
         #if len(hits.scoreDocs) > 0:
-        files = []
-        for pth in paths:
-            
-            fileRoots = []
-            #path = STATIC_ROOT + 'web/images/'
-            pth = pth.replace("/home/kevin/Downloads/","/home/kevin/git/YIF/imageFinder/web/static/web/")#os.path.join(tools.__path__,"static/web/images")
-            for root, directories, filenames in os.walk(pth):#probably something wrong with the location
-                for filename in filenames:
-                    if (".jpg" or ".gif" or ".png") in filename:
-                        files.append(root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/","") + "/" +filename)#temp, will need to chance            
-                        fileRoots.append(root)
-                        print (root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/","") + "/" + filename)
-                        break#exit from loop
+        files = get_image(paths)
+        
                     
         return files, pmcids, titles
         
@@ -121,7 +110,7 @@ def getRandomDoc2():
         else:
              return files[randrange(0, len(files))]
 
-def getDocumentPMC_ID(pmcid):
+def getDocumentPMC_ID(pmcid, imageAndTitle = 0):
     location = web.__path__[0] + "/static/web/files/index/index.articles"
     #lucene.initVM()
     vm_env = lucene.getVMEnv()
@@ -144,6 +133,11 @@ def getDocumentPMC_ID(pmcid):
     for hit in hits.scoreDocs:#should only be one
         #print hit.score, hit.doc, hit.toString()
         doc = searcher.doc(hit.doc)
+        if(imageAndTitle == 1):
+            paths = []
+            paths.append(doc.get("articlepath"))
+            image = get_image(paths)
+            
         abstract = doc.get("abstract")
         doi = doc.get("doi")
         title = doc.get("title")
@@ -157,4 +151,22 @@ def getDocumentPMC_ID(pmcid):
         doiSecond = ""
     #http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3363814/pdf/cc11003.pdf
     pdf = "http://www.ncbi.nlm.nih.gov/pmc/articles/" + pmcid + "/pdf/" + doiSecond + ".pdf" 
-    return abstract, doi, title, volume, year, publisher, fullText, pdf
+    if(imageAndTitle == 1):
+        return title, image, pmcid#image may sometimes show up    
+    else:
+        return abstract, doi, title, volume, year, publisher, fullText, pdf,pmcid#image may sometimes show up
+
+def get_image(paths):
+    files = []
+    for pth in paths:
+        fileRoots = []
+        # path = STATIC_ROOT + 'web/images/'
+        pth = pth.replace("/home/kevin/Downloads/", "/home/kevin/git/YIF/imageFinder/web/static/web/")  # os.path.join(tools.__path__,"static/web/images")
+        for root, directories, filenames in os.walk(pth):  # probably something wrong with the location
+            for filename in filenames:
+                if (".jpg" or ".gif" or ".png") in filename:
+                    files.append(root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/", "") + "/" + filename)  # temp, will need to chance            
+                    fileRoots.append(root)
+                    print (root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/", "") + "/" + filename)
+                    break  # exit from loop
+    return files
