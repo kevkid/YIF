@@ -20,7 +20,7 @@
 
 	<a href="{% url 'web:OpenDocument' %}?pmcid={{img.1}}&&img_loc={{img.0}}"><!-- This is not how we should handle images -->
 		<label>{{img.2}}</label>
-		<img class="" src="{% static 'web/'%}{{img.0}}"></img>
+		<img class="" src="{% static 'web/'%}{{img.0.0}}"></img>
 	</a>
 	
 </td>

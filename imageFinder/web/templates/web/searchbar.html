@@ -11,10 +11,10 @@
 <div style="padding-bottom:10px;">
 <input class="searchBar" type="text" size="50" name="searchTerm" style="height:30px; margin-bottom:0px;"/>
 		<button class="btn btn-primary" type="submit" >Search</button>
-		<select class="classddl">
-		<option name="classes" value="all">All</option>
+		<select name="classes" class="classddl">
+		<option  value="all">All</option>
 		{% for class in classes%}
-		<option name="classes" id="{{class.image_class}}" value="{{class.image_class}}">{{class.image_class_desc}}</option>
+		<option  id="{{class.image_class}}" value="{{class.image_class}}">{{class.image_class_desc}}</option>
 		{% endfor %}
 		</select>
 		<a id="advancedOptions"><label>Advanced options</label></a>

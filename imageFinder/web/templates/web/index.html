@@ -18,10 +18,12 @@
 		<input type="hidden" name="imageID" value="{{img_id}}"/>
 		<ul class="noStyle">
 		{% for class in classes%}
+			{% if class.image_class == 1 or class.image_class == 3 %} 
 			<li class="autoFit">
 				<input type="radio" name="survey" id="{{class.image_class}}" value="{{class.image_class}}">
 				<label for="{{class.image_class}}">{{class.image_class_desc}}</label>
 			</li>
+			{% endif %}
 		{% endfor %}
 		</ul>
 		<button class="btn btn-primary" type="submit" >Submit</button>

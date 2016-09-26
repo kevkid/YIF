@@ -16,42 +16,64 @@ from pylint.pyreverse.utils import ABSTRACT
 def SearchQuery(queryString, fields, classification): 
     #if __name__ == "__main__":
     #if __name__ == "retriever":
-        location = web.__path__[0] + "/static/web/files/index/index.articles"
+    location = web.__path__[0] + "/static/web/files/index/index.articles"
+    #lucene.initVM()
+    vm_env = lucene.getVMEnv()
+    vm_env.attachCurrentThread()
+    analyzer = StandardAnalyzer(Version.LUCENE_4_10_1)
+    reader = IndexReader.open(SimpleFSDirectory(File(location)))
+    searcher = IndexSearcher(reader)
+    #multi field query: http://stackoverflow.com/questions/2005084/how-to-specify-two-fields-in-lucene-queryparser
+    
+    query = MultiFieldQueryParser(Version.LUCENE_4_10_1, fields, analyzer)
+    #query.setDefaultOperator(QueryParserBase.AND_OPERATOR)
+    query = MultiFieldQueryParser.parse(query, queryString)
+    #query.parse(queryString)#"Shigella sonnei"
+    #query = QueryParser(Version.LUCENE_4_10_1, "abstract", analyzer).parse(queryString)#"Shigella sonnei"
+
+    MAX = 10000
+    hits = searcher.search(query, MAX)
+ 
+    print "Found %d document(s) that matched query '%s':" % (hits.totalHits, query)
+    paths = []
+    pmcids = []
+    titles = []
+    for hit in hits.scoreDocs:
+        doc = searcher.doc(hit.doc)
+        pmcids.append(doc.get("pmcid"))
+    
+        
+    images = get_image_pmcid(pmcids, classification)#should take in pmcids and class
+    doc_img_paths = []
+    for img in images:
+        imgClass = img.get("class")
+        if imgClass == classification or classification == "all":
+            doc_img_paths.append(img.get("filepath") + "/" + img.get("figureid"))#get both the article path and the pmcid
+            pmcids.append( doc.get("pmcid"))
+            titles.append( doc.get("title"))
+    paths.append(doc_img_paths[0])#append the list of paths for the images for each article, only first image
+    files = paths
+    return files, pmcids, titles
+        
+def getRandomDocOfCertainClass():
+        classes = [1,3]#temporary classes, we will set this later
+        location = web.__path__[0] + "/static/web/files/index/index.figures"
         #lucene.initVM()
         vm_env = lucene.getVMEnv()
         vm_env.attachCurrentThread()
-        analyzer = StandardAnalyzer(Version.LUCENE_4_10_1)
-        reader = IndexReader.open(SimpleFSDirectory(File(location)))
-        searcher = IndexSearcher(reader)
-        #multi field query: http://stackoverflow.com/questions/2005084/how-to-specify-two-fields-in-lucene-queryparser
         
-        query = MultiFieldQueryParser(Version.LUCENE_4_10_1, fields, analyzer)
-        #query.setDefaultOperator(QueryParserBase.AND_OPERATOR)
-        query = MultiFieldQueryParser.parse(query, queryString)
-        #query.parse(queryString)#"Shigella sonnei"
-        #query = QueryParser(Version.LUCENE_4_10_1, "abstract", analyzer).parse(queryString)#"Shigella sonnei"
-
-        MAX = 10000
-        hits = searcher.search(query, MAX)
-     
-        print "Found %d document(s) that matched query '%s':" % (hits.totalHits, query)
-        paths = []
-        pmcids = []
-        titles = []
-        for hit in hits.scoreDocs:
-            #print hit.score, hit.doc, hit.toString()
-            doc = searcher.doc(hit.doc)
-            #print doc.get("articlepath")
-            paths.append(doc.get("articlepath"))#get both the article path and the pmcid
-            pmcids.append( doc.get("pmcid"))
-            titles.append( doc.get("title"))
-        #if len(hits.scoreDocs) > 0:
-        files = get_image(paths)
-        
-                    
-        return files, pmcids, titles
-        
-
+        docAndID = getDocumentClass(classes)#get document from these classes
+        if docAndID == -1:
+            while docAndID == -1:
+                docAndID = getDocumentClass(classes)
+        doc = docAndID[0]
+        docNum = docAndID[1] 
+        fileName = doc.get("filename")
+        filePath = doc.get("filepath")
+            
+        result = filePath + "/" + fileName 
+        result = result.replace("/home/kevin/Downloads/","/")
+        return (result, docNum)
 def getRandomDoc():
     
         location = web.__path__[0] + "/static/web/files/index/index.figures"
@@ -156,6 +178,31 @@ def getDocumentPMC_ID(pmcid, imageAndTitle = 0):
     else:
         return abstract, doi, title, volume, year, publisher, fullText, pdf,pmcid#image may sometimes show up
 
+
+def getDocumentClass(reqClass):
+    import random
+    location = web.__path__[0] + "/static/web/files/index/index.figures"
+    #lucene.initVM()
+    vm_env = lucene.getVMEnv()
+    vm_env.attachCurrentThread()
+    analyzer = StandardAnalyzer(Version.LUCENE_4_10_1)
+    reader = IndexReader.open(SimpleFSDirectory(File(location)))
+    searcher = IndexSearcher(reader)
+    #multi field query: http://stackoverflow.com/questions/2005084/how-to-specify-two-fields-in-lucene-queryparser
+    query = QueryParser(Version.LUCENE_4_10_1, "class", analyzer).parse(str(random.choice(reqClass)))#get random class and search for a document from here
+    MAX = 1000
+    hits = searcher.search(query, MAX)
+    docs = []
+    for hit in hits.scoreDocs:#should only be one
+        #print hit.score, hit.doc, hit.toString()
+        docs.append((searcher.doc(hit.doc), hit.doc))
+    
+    if not docs:
+        return -1
+    else:
+        doc = random.choice(docs)
+        return doc#return document and ID
+
 def get_image(paths):
     files = []
     for pth in paths:
@@ -170,3 +217,35 @@ def get_image(paths):
                     print (root.replace("/home/kevin/git/YIF/imageFinder/web/static/web/", "") + "/" + filename)
                     break  # exit from loop
     return files
+def get_image_pmcid(pmcid, classes = ""):
+    fields = ["pmcid", "class"]
+    docs = []
+    location = web.__path__[0] + "/static/web/files/index/index.figures"
+    #lucene.initVM()
+    vm_env = lucene.getVMEnv()
+    vm_env.attachCurrentThread()
+    analyzer = StandardAnalyzer(Version.LUCENE_4_10_1)
+    reader = IndexReader.open(SimpleFSDirectory(File(location)))
+    searcher = IndexSearcher(reader)
+    # multi field query: http://stackoverflow.com/questions/2005084/how-to-specify-two-fields-in-lucene-queryparser
+    
+    #query = MultiFieldQueryParser(Version.LUCENE_4_10_1, fields, analyzer)
+    # query.setDefaultOperator(QueryParserBase.AND_OPERATOR)
+    
+    #query = query.parse(query, ('4175339','1'))
+    # query.parse(queryString)#"Shigella sonnei"
+    # query = QueryParser(Version.LUCENE_4_10_1, "abstract", analyzer).parse(queryString)#"Shigella sonnei"
+
+    MAX = 10000
+    #hits = searcher.search(query, MAX)
+    if classes == "all":
+        queryStr = "pmcid:(" + ' '.join(pmcid) +")"
+    else:
+        queryStr = "pmcid:(" + ' '.join(pmcid) +")" + " AND class:" + classes
+    query = QueryParser(Version.LUCENE_4_10_1, "pmcid",analyzer)#needed to build a custom query
+    q = query.parse(queryStr) 
+    hits = searcher.search(q, MAX)
+    for hit in hits.scoreDocs:#should only be one
+        #print hit.score, hit.doc, hit.toString()
+        docs.append(searcher.doc(hit.doc))
+    return docs #This will return the image documents that belong to a pmcid(article)

@@ -46,10 +46,10 @@ def index(request):
     #rand_img =  Image.objects.all()[randNum]
     cls = Classes.objects.all()
     import tools.retriever as retriever
-    rand_img, img_id = retriever.getRandomDoc()
+    rand_img, img_id = retriever.getRandomDocOfCertainClass()
     if rand_img == -1:
         while rand_img == -1:
-            rand_img = retriever.getRandomDoc()
+            rand_img = retriever.getRandomDocOfCertainClass()
     
     context = {'randomImg' : rand_img, 'classes': cls, 'img_id': img_id}
     return render(request, 'web/index.html',context)#show the homePage
@@ -135,9 +135,10 @@ def search(request):
     import tools.retriever as retriever
     cls = Classes.objects.all()
     advSearch = request.POST.getlist('advSearch')
+    classes = request.POST.get('classes')
     try:
         
-        (images, pmcids,titles) = retriever.SearchQuery(request.POST['searchTerm'], advSearch, "all")#"Shigella sonnei"
+        (images, pmcids,titles) = retriever.SearchQuery(request.POST['searchTerm'], advSearch, classes)#"Shigella sonnei"
     except:
         #something went wrong with getting the images, set to 0 and give 0 results
         images = 0
@@ -146,7 +147,7 @@ def search(request):
         context = {'searchImages' : zip(images,pmcids,titles), 'imageCount' : len(images),
                     'term' : request.POST['searchTerm'], 'classes': cls, 'advSearch' : ', '.join(advSearch)}
     else:
-        context = {'imageCount' : 0, 'classes': cls}
+        context = {'imageCount' : 0, 'classes': cls, 'term' : request.POST['searchTerm'], 'advSearch' : ', '.join(advSearch)}
     return render(request, 'web/search.html', context)#show the search page
 
 def OpenDocument(request):
