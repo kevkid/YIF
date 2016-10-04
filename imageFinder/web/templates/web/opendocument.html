@@ -19,10 +19,10 @@
 	    	Related Images
 	    	</div>
 	    	<!-- Related Images -->
-	    	{% for doc in relatedDocs %}
+	    	{% for key, doc in relatedDocs.items %}
 	    	<div>
-	    		<a href="#"><label>{{doc.0}}</label></a>
-	    		<img src="{% static 'web/'%}{{doc.1}}"> </img>
+	    		<a href="{% url 'web:OpenDocument' %}?pmcid={{key}}&&img_loc={{doc.imgURL}}"><label>{{doc.title}}</label></a>
+	    		<img src="{% static 'web/'%}{{doc.imgURL}}"> </img>
 	    	</div>
 	    	{% endfor %}
 	    	</div>

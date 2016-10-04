@@ -14,6 +14,7 @@ from org.apache.lucene.queries.mlt import MoreLikeThis
 
 
 def getRelatedArticles(pmcid):
+    import tools.retriever as retriever
     location = web.__path__[0] + "/static/web/files/index/index.articles"
     #lucene.initVM()
     vm_env = lucene.getVMEnv()
@@ -65,21 +66,47 @@ def getRelatedArticles(pmcid):
     print "Found %d document(s) that matched query '%s':" % (hits.totalHits, result)
     paths = []
     pmcids = []
-    titles = []
-    files = []
+    documentDict = {}
     for hit in hits.scoreDocs:
-            #print hit.score, hit.doc, hit.toString()
         doc = searcher.doc(hit.doc)
-            #print doc.get("articlepath")
-        paths.append(doc.get("articlepath"))#get both the article path and the pmcid
-        pmcids.append( doc.get("pmcid"))
-        titles.append( doc.get("title"))
-        #if len(hits.scoreDocs) > 0:
-        files.append(retriever.get_image(paths))
+        pmcids.append(doc.get("pmcid"))
+        docDict = {"title" : doc.get("title")}#we can add any other field we want...
+        documentDict[doc.get("pmcid")] = docDict 
+    
+    #Where we get the images for all the pmcids    
+    images = retriever.get_image_pmcid(pmcids, "all")#should take in pmcids and class
+    #create dictionary of images with pmcid being their key
+    imagesDict = {}
+    for img in images:
+        img_pmcid = img.get("pmcid") 
+        if img_pmcid in imagesDict.keys():
+            imagesDict[img_pmcid].append(img.get("filepath") + "/" + img.get("figureid"))
+            
+        else:
+            imagesDict[img_pmcid] = [(img.get("filepath") + "/" + img.get("figureid"))]
+            
+    #for each pmcid, we will assign an image to it for the search results
+    for pmcid in pmcids:
+        if imagesDict:
+            if pmcid in imagesDict.keys():
+                 docDict = documentDict[pmcid]
+                 docDict["imgURL"] = imagesDict[pmcid][0] 
+                 documentDict[pmcid] = docDict
+            else:
+                docDict = documentDict[pmcid]
+                docDict["imgURL"] = "images/NoImageAvailable.jpg"
+                documentDict[pmcid] = docDict
+        else:
+            docDict = documentDict[pmcid]
+            docDict["imgURL"] = "images/NoImageAvailable.jpg"
+            documentDict[pmcid] = docDict
+    
+    #END - Where we get the images for all the pmcids
+    
+    
+    return documentDict
     #    // Do we want to play around with result.setMinimumNumberShouldMatch(n)
     #    // to filter results?
-    files = [val for sublist in files for val in sublist]
-    return zip(titles, files);
     
 def getSimilarityGenerator(field,minTermFreq,minDocFreq,minWordLen): # maxQueryTerms as parameter
     maxQueryTerms = 30

@@ -37,23 +37,40 @@ def SearchQuery(queryString, fields, classification):
     print "Found %d document(s) that matched query '%s':" % (hits.totalHits, query)
     paths = []
     pmcids = []
-    titles = []
+    documentDict = {}
     for hit in hits.scoreDocs:
         doc = searcher.doc(hit.doc)
         pmcids.append(doc.get("pmcid"))
+        docDict = {"title" : doc.get("title")}#we can add any other field we want...
+        documentDict[doc.get("pmcid")] = docDict 
     
-        
+    #Where we get the images for all the pmcids    
     images = get_image_pmcid(pmcids, classification)#should take in pmcids and class
-    doc_img_paths = []
+    #create dictionary of images with pmcid being their key
+    imagesDict = {}
     for img in images:
-        imgClass = img.get("class")
-        if imgClass == classification or classification == "all":
-            doc_img_paths.append(img.get("filepath") + "/" + img.get("figureid"))#get both the article path and the pmcid
-            pmcids.append( doc.get("pmcid"))
-            titles.append( doc.get("title"))
-    paths.append(doc_img_paths[0])#append the list of paths for the images for each article, only first image
-    files = paths
-    return files, pmcids, titles
+        img_pmcid = img.get("pmcid") 
+        if img_pmcid in imagesDict.keys():
+            imagesDict[img_pmcid].append(img.get("filepath") + "/" + img.get("figureid"))
+            
+        else:
+            imagesDict[img_pmcid] = [(img.get("filepath") + "/" + img.get("figureid"))]
+            
+    #for each pmcid, we will assign an image to it for the search results
+    for pmcid in pmcids:
+        if imagesDict:
+            docDict = documentDict[pmcid]
+            docDict["imgURL"] = imagesDict[pmcid][0] 
+            documentDict[pmcid] = docDict 
+        else:
+            docDict = documentDict[pmcid]
+            docDict["imgURL"] = "images/NoImageAvailable.jpg"
+            documentDict[pmcid] = docDict
+    
+    #END - Where we get the images for all the pmcids
+    
+    
+    return documentDict
         
 def getRandomDocOfCertainClass():
         classes = [1,3]#temporary classes, we will set this later
@@ -249,3 +266,6 @@ def get_image_pmcid(pmcid, classes = ""):
         #print hit.score, hit.doc, hit.toString()
         docs.append(searcher.doc(hit.doc))
     return docs #This will return the image documents that belong to a pmcid(article)
+
+def build_dict(seq, key):
+    return dict((d[key], dict(d, index=index)) for (index, d) in enumerate(seq))

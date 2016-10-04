@@ -138,13 +138,15 @@ def search(request):
     classes = request.POST.get('classes')
     try:
         
-        (images, pmcids,titles) = retriever.SearchQuery(request.POST['searchTerm'], advSearch, classes)#"Shigella sonnei"
+        results = retriever.SearchQuery(request.POST['searchTerm'], advSearch, classes)#"Shigella sonnei"
+        numdocs = len(results) 
     except:
         #something went wrong with getting the images, set to 0 and give 0 results
-        images = 0
+        numdocs = 0
     
-    if images != 0:
-        context = {'searchImages' : zip(images,pmcids,titles), 'imageCount' : len(images),
+    if numdocs != 0:
+        
+        context = {'results' : results, 'imageCount' : numdocs,
                     'term' : request.POST['searchTerm'], 'classes': cls, 'advSearch' : ', '.join(advSearch)}
     else:
         context = {'imageCount' : 0, 'classes': cls, 'term' : request.POST['searchTerm'], 'advSearch' : ', '.join(advSearch)}
